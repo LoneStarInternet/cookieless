@@ -16,13 +16,11 @@ module Rack
       else
         session_id, cookies = get_cookies_by_query(env["QUERY_STRING"], env) || get_cookies_by_query((URI.parse(env['HTTP_REFERER']).query rescue nil), env)
         env["HTTP_COOKIE"] = cookies if cookies
-        
-        
 
         status, header, response = @app.call(env)
 
         if env['action_dispatch.request.path_parameters'] && %w(css js xml).exclude?(env['action_dispatch.request.path_parameters'][:format].to_s)
-          session_id = save_cookies_by_session_id(session_id || env["rack.session"]["session_id"] || env['rack.session.options'][:id], env, header["Set-Cookie"])
+          session_id = save_cookies_by_session_id(env['rack.session.options'][:id] ||env["rack.session"]["session_id"] ||  session_id, env, header["Set-Cookie"])
           ## fix 3xx redirect
           header["Location"] = convert_url(header["Location"], session_id) if header["Location"]
           ## only process html page
@@ -32,7 +30,6 @@ module Rack
             response[0] = process_body(response[0].to_s, session_id)
           end
         end
-
         [status, header, response]
       end
     end
