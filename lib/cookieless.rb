@@ -23,10 +23,12 @@ module Rack
           ## fix 3xx redirect
           header["Location"] = convert_url(header["Location"], session_id) if header["Location"]
           ## only process html page
-          if response.respond_to?(:body)
-            response.body = process_body(response.body, session_id)
-          elsif response.is_a?(Array) and [ActionView::OutputBuffer,String].detect{|klass| response[0].is_a?(klass)}
-            response[0] = process_body(response[0].to_s, session_id)
+          if header['Content-Type'].to_s.downcase.include?('html')
+            if response.respond_to?(:body)
+              response.body = process_body(response.body, session_id)
+            elsif response.is_a?(Array) and [ActionView::OutputBuffer,String].detect{|klass| response[0].is_a?(klass)}
+              response[0] = process_body(response[0].to_s, session_id)
+            end
           end
         end
         [status, header, response]
