@@ -21,13 +21,13 @@ module Rack
         if env['action_dispatch.request.path_parameters'] && %w(css js xml).exclude?(env['action_dispatch.request.path_parameters'][:format].to_s)
           session_id = save_cookies_by_session_id(env['rack.session.options'][:id] ||env["rack.session"]["session_id"] ||  session_id, env, header["Set-Cookie"])
           ## fix 3xx redirect
-          header["Location"] = convert_url(header["Location"], session_id) if header["Location"]
+          header["Location"] = convert_url(header["Location"], session_id, env) if header["Location"]
           ## only process html page
           if header['Content-Type'].to_s.downcase.include?('html')
             if response.respond_to?(:body)
-              response.body = process_body(response.body, session_id)
+              response.body = process_body(response.body, session_id, env)
             elsif response.is_a?(Array) and [ActionView::OutputBuffer,String].detect{|klass| response[0].is_a?(klass)}
-              response[0] = process_body(response[0].to_s, session_id)
+              response[0] = process_body(response[0].to_s, session_id, env)
             end
           end
         end
@@ -62,22 +62,28 @@ module Rack
       Digest::SHA1.hexdigest(session_id.to_s + env["HTTP_USER_AGENT"].to_s + env["REMOTE_ADDR"].to_s)
     end
 
-    def process_body(body, session_id)
+    def process_body(body, session_id, env)
       body_doc = Nokogiri::HTML(body)
-      body_doc.css("a").map { |a| a["href"] = convert_url(a['href'], session_id) if a["href"] }
+      body_doc.css("a").map { |a| a["href"] = convert_url(a['href'], session_id, env) if a["href"] }
       body_doc.css("form").map do |form|
         if form["action"]
-          form["action"] = convert_url(form["action"], session_id)
+          form["action"] = convert_url(form["action"], session_id, env)
           form.add_child("<input type='hidden' name='#{session_key}' value='#{session_id}'>")
         end
       end
       body_doc.to_html
     end
 
-    def convert_url(u, session_id)
+    def convert_url(u, session_id, env)
+      has_http = u =~ /^http/
+      uri, anchor = u.to_s.split('#')
+      return u if u =~ /^\#/ || (has_http && u !~ /#{env['REMOTE_HOST']}/)
+      u = uri if anchor
       u = URI.parse(URI.escape(u))
       u.query = Rack::Utils.build_query(Rack::Utils.parse_query(u.query).merge({session_key => session_id})) if u.scheme.blank? || u.scheme.to_s =~ /http/
-      u.to_s
+      u = u.to_s
+      u += "##{anchor.to_s}" if anchor
+      u
     end
   end
 end
