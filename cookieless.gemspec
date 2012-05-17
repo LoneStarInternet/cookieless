@@ -2,16 +2,16 @@
 
 Gem::Specification.new do |s|
   s.name = "cookieless"
-  s.version = "0.2.4.4"
+  s.version = "0.2.5"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Jinzhu", "chrisboy333"]
+  s.authors = ["Jinzhu", "chrisboy333", "mepatterson"]
   s.date = "2012-01-06"
-  s.description = "Cookieless is a rack middleware to make your application works with cookie-less devices/browsers without change your application"
+  s.description = "Cookieless is a rack middleware to make your application works with cookie-less devices/browsers without change your application; Forked from Jinzhu's github branch."
   s.email = "wosmvp@gmail.com"
   s.extra_rdoc_files = ["LICENSE.txt", "README.rdoc"]
   s.files = ["LICENSE.txt", "README.rdoc"]
-  s.homepage = "http://github.com/jinzhu/cookieless"
+  s.homepage = "http://github.com/LoneStarInternet/cookieless"
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
   s.rubygems_version = "1.8.10"
