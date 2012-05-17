@@ -79,11 +79,16 @@ module Rack
       uri, anchor = u.to_s.split('#')
       return u if u =~ /^\#/ || (has_http && u !~ /#{env['REMOTE_HOST']}/)
       u = uri if anchor
-      u = URI.parse(URI.escape(u))
-      u.query = Rack::Utils.build_query(Rack::Utils.parse_query(u.query).merge({session_key => session_id})) if u.scheme.blank? || u.scheme.to_s =~ /http/
-      u = u.to_s
-      u += "##{anchor.to_s}" if anchor
-      u
+      begin
+        u = URI.parse(URI.escape(u))
+        u.query = Rack::Utils.build_query(Rack::Utils.parse_query(u.query).merge({session_key => session_id})) if u.scheme.blank? || u.scheme.to_s =~ /http/
+        u = u.to_s
+        u += "##{anchor.to_s}" if anchor
+        u        
+      rescue Exception => e
+        # couldn't parse this url. probably invalid. just bail out and return it as-is
+        return u
+      end
     end
   end
 end

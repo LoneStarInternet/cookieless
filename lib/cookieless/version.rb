@@ -1,3 +1,3 @@
 module Cookieless
-  VERSION = "0.2.4.4"
+  VERSION = "0.2.5"
 end
