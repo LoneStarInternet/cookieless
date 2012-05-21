@@ -78,6 +78,7 @@ module Rack
       begin
         anchor = URI.parse(u).fragment
         without_anchor = u.split('#').first
+        return u if (without_anchor.respond_to?(:empty?) ? without_anchor.empty? : !without_anchor)
         u = URI.parse(URI.escape(without_anchor))
         blank_scheme = u.scheme.respond_to?(:empty?) ? u.scheme.empty? : !u.scheme
         u.query = Rack::Utils.build_query(Rack::Utils.parse_query(u.query).merge({session_key => session_id})) if blank_scheme || u.scheme.to_s =~ /http/
