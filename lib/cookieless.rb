@@ -75,13 +75,12 @@ module Rack
     end
 
     def convert_url(u, session_id, env)
-      has_http = u =~ /^http/
-      uri, anchor = u.to_s.split('#')
-      return u if u =~ /^\#/ || (has_http && u !~ /#{env['REMOTE_HOST']}/)
-      u = uri if anchor
       begin
-        u = URI.parse(URI.escape(u))
-        u.query = Rack::Utils.build_query(Rack::Utils.parse_query(u.query).merge({session_key => session_id})) if u.scheme.blank? || u.scheme.to_s =~ /http/
+        anchor = URI.parse(u).fragment
+        without_anchor = u.split('#').first
+        u = URI.parse(URI.escape(without_anchor))
+        blank_scheme = u.scheme.respond_to?(:empty?) ? u.scheme.empty? : !u.scheme
+        u.query = Rack::Utils.build_query(Rack::Utils.parse_query(u.query).merge({session_key => session_id})) if blank_scheme || u.scheme.to_s =~ /http/
         u = u.to_s
         u += "##{anchor.to_s}" if anchor
         u        
