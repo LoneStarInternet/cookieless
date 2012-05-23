@@ -2,12 +2,12 @@
 
 Gem::Specification.new do |s|
   s.name = "cookieless"
-  s.version = "0.3.2"
+  s.version = "0.3.3-cb"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jinzhu", "chrisboy333", "mepatterson"]
   s.date = "2012-01-06"
-  s.description = "Cookieless is a rack middleware to make your application works with cookie-less devices/browsers without change your application; Forked from Jinzhu's github branch."
+  s.description = "Cookieless is a rack middleware to make your application works with cookie-less devices/browsers without change your application; Forked from Jinzhu's github branch. This branch is now specific to our internal CB project. DO NOT USE IT FOR ANYTHING ELSE."
   s.email = "wosmvp@gmail.com"
   s.extra_rdoc_files = ["LICENSE.txt", "README.rdoc"]
   s.files = ["LICENSE.txt", "README.rdoc"]
@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
   s.rubygems_version = "1.8.10"
-  s.summary = "Cookieless is a rack middleware to make your application works with cookie-less devices/browsers without change your application"
+  s.summary = "Cookieless is a rack middleware to make your application works with cookie-less devices/browsers without change your application; Forked from Jinzhu's github branch. This branch is now specific to our internal CB project. DO NOT USE IT FOR ANYTHING ELSE."
 
   if s.respond_to? :specification_version then
     s.specification_version = 3

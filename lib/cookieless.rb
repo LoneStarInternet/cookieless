@@ -66,7 +66,8 @@ module Rack
       body_doc = Nokogiri::HTML(body)
       body_doc.css("a").map { |a| a["href"] = convert_url(a['href'], session_id, env) if a["href"] }
       body_doc.css("form").map do |form|
-        if form["action"]
+        # ensure we don't bother with 'si' stuff on external links/posts
+        if form["action"] && (URI.parse(form["action"]).host =~ /completebook/i || URI.parse(form["action"]).host.nil?)
           form["action"] = convert_url(form["action"], session_id, env)
           form.add_child("<input type='hidden' name='#{session_key}' value='#{session_id}'>")
         end
@@ -76,6 +77,8 @@ module Rack
 
     def convert_url(u, session_id, env)
       begin
+        # ensure we don't bother with 'si' stuff on external links/posts
+        return u unless URI.parse(u).host =~ /completebook/i || URI.parse(u).host.nil?
         anchor = URI.parse(u).fragment
         without_anchor = u.split('#').first
         return u if (without_anchor.respond_to?(:empty?) ? without_anchor.empty? : !without_anchor)
