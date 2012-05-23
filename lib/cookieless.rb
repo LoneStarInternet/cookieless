@@ -11,9 +11,11 @@ module Rack
       # have cookies or not
       support_cookie = env["HTTP_COOKIE"].present?
       if support_cookie
+        env["COOKIES_SUPPORTED"] = 'true'
         @app.call(env)
       else
         session_id, cookies = get_cookies_by_query(env["QUERY_STRING"], env) || get_cookies_by_query((URI.parse(env['HTTP_REFERER']).query rescue nil), env)
+        env["COOKIES_SUPPORTED"] = 'false'
         env["HTTP_COOKIE"] = cookies if cookies
 
         status, header, response = @app.call(env)
