@@ -16,7 +16,18 @@ module Rack
       else
         session_id, cookies = get_cookies_by_query(env["QUERY_STRING"], env) || get_cookies_by_query((URI.parse(env['HTTP_REFERER']).query rescue nil), env)
         env["COOKIES_SUPPORTED"] = 'false'
-        env["HTTP_COOKIE"] = cookies if cookies
+        if cookies
+          env["HTTP_COOKIE"] = cookies 
+        else
+          # oddity when IE hits 'www' site for first time
+          # since env['HTTP_COOKIE'] is not set yet, we fall through into the
+          # 'cookies not supported' part of the outside if..else
+          # because it's 'www', our application_controller does not set any 
+          # company subdomain cookie, so we effectively have no cookies set, so
+          # we end up inside this else. we need set *something* so IE will actually
+          # *have* a cookie for the next request, even if its crap.
+          env["HTTP_COOKIE"] = "bugfix=true"
+        end
 
         status, header, response = @app.call(env)
 
@@ -86,8 +97,8 @@ module Rack
         return u if (without_anchor.respond_to?(:empty?) ? without_anchor.empty? : !without_anchor)
         u = URI.parse(URI.escape(without_anchor))
         blank_scheme = u.scheme.respond_to?(:empty?) ? u.scheme.empty? : !u.scheme
-        u.query = Rack::Utils.build_query(Rack::Utils.parse_query(u.query).merge({session_key => session_id})) if blank_scheme || u.scheme.to_s =~ /http/
-        u = u.to_s
+        u.query = Rack::Utils.build_query(Rack::Utils.parse_nested_query(u.query).merge({session_key => session_id})) if blank_scheme || u.scheme.to_s =~ /http/
+        u = URI.unescape(u.to_s)
         u += "##{anchor.to_s}" if anchor
         u        
       rescue Exception => e
