@@ -86,10 +86,8 @@ module Rack
         return u if (without_anchor.respond_to?(:empty?) ? without_anchor.empty? : !without_anchor)
         u = URI.parse(URI.escape(without_anchor))
         blank_scheme = u.scheme.respond_to?(:empty?) ? u.scheme.empty? : !u.scheme
-        # u.query = Rack::Utils.build_query(Rack::Utils.parse_nested_query(u.query).merge({session_key => session_id})) if blank_scheme || u.scheme.to_s =~ /http/
-        # u = URI.unescape(u.to_s)
-        u.query = Rack::Utils.build_query(Rack::Utils.parse_query(u.query).merge({session_key => session_id})) if blank_scheme || u.scheme.to_s =~ /http/
-        u = u.to_s
+        u.query = Rack::Utils.build_query(Rack::Utils.parse_nested_query(u.query).merge({session_key => session_id})) if blank_scheme || u.scheme.to_s =~ /http/
+        u = URI.unescape(u.to_s)
         u += "##{anchor.to_s}" if anchor
         u        
       rescue Exception => e
